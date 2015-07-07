@@ -63,25 +63,115 @@ Epo.prototype.register = function(options, callback) {
   }
 };
 Epo.prototype.published_data = function(options,callback){
-
+  if (options && options.ref_type && options.format && options.input) {
+    options.constituents = options.constituents || "biblio";
+    var request = require('request');
+    var urlBuilder = [this.service_url_prefix, this.published_data_path, options.ref_type, options.format, options.input, options.constituents];
+    var reqOptions = {
+      url: urlBuilder.join("/"),
+      headers: {
+        'Accept': 'application/json',
+        //'Authorization: Bearer '.$token['access_token'],
+        'Connection': 'Keep-Alive',
+        'Host': 'ops.epo.org',
+        'X-Target-URI': 'http://ops.epo.org'
+      }
+    };
+    if (process.env.DEBUG) console.log('Request to register : ',reqOptions);
+    request(reqOptions, function(error, response, body) {
+      if(response.statusCode === 200){
+          if(callback && typeof callback === "function"){
+            callback.call(null,body);
+          }
+      }
+    });
+  }
 };
 Epo.prototype.family = function(options,callback){
-
+  if (options && options.ref_type && options.format && options.input) {
+    options.constituents = options.constituents || "";
+    var request = require('request');
+    var urlBuilder = [this.service_url_prefix, this.family_path, options.ref_type, options.format, options.input, options.constituents];
+    var reqOptions = {
+      url: urlBuilder.join("/"),
+      headers: {
+        'Accept': 'application/json',
+        //'Authorization: Bearer '.$token['access_token'],
+        'Connection': 'Keep-Alive',
+        'Host': 'ops.epo.org',
+        'X-Target-URI': 'http://ops.epo.org'
+      }
+    };
+    if (process.env.DEBUG) console.log('Request to register : ',reqOptions);
+    request(reqOptions, function(error, response, body) {
+      if(response.statusCode === 200){
+          if(callback && typeof callback === "function"){
+            callback.call(null,body);
+          }
+      }
+    });
+  }
 };
 Epo.prototype.published_data_search = function(options,callback){
-
+  if(options && options.cql){
+    options.range_begin = options.range_begin || 1;
+    options.range_end = options.range_end || 25;
+    var request = require('request');
+    var urlBuilder = this.service_url_prefix + "/" + this.published_data_search_path+"?q="+options.cql+"&Range="+options.range_begin+"-"+options.range_end;
+    var reqOptions = {
+      url: urlBuilder,
+      headers: {
+        'Accept': 'application/json',
+        //'Authorization: Bearer '.$token['access_token'],
+        'Connection': 'Keep-Alive',
+        'Host': 'ops.epo.org',
+        'X-Target-URI': 'http://ops.epo.org'
+      }
+    };
+    if (process.env.DEBUG) console.log('Request to register : ',reqOptions);
+    request(reqOptions, function(error, response, body) {
+      if(response.statusCode === 200){
+          if(callback && typeof callback === "function"){
+            callback.call(null,body);
+          }
+      }
+    });
+  }
 };
 Epo.prototype.register_search = function(options,callback){
-
+  if(options && options.cql){
+    options.range_begin = options.range_begin || 1;
+    options.range_end = options.range_end || 25;
+    var request = require('request');
+    var urlBuilder = this.service_url_prefix + "/" + this.register_search_path+"?q="+options.cql+"&Range="+options.range_begin+"-"+options.range_end;
+    var reqOptions = {
+      url: urlBuilder,
+      headers: {
+        'Accept': 'application/json',
+        //'Authorization: Bearer '.$token['access_token'],
+        'Connection': 'Keep-Alive',
+        'Host': 'ops.epo.org',
+        'X-Target-URI': 'http://ops.epo.org'
+      }
+    };
+    if (process.env.DEBUG) console.log('Request to register : ',reqOptions);
+    request(reqOptions, function(error, response, body) {
+      if(response.statusCode === 200){
+          if(callback && typeof callback === "function"){
+            callback.call(null,body);
+          }
+      }
+    });
+  }
 };
 var myEpo = new Epo({
-  clientID: '3U0OeLMQOj5pxi0Mqs5oVYM3BrxxmS3P',
-  clientSecret: 's5qxUm5vnQdUOqJ6'
+  // clientID: '3U0OeLMQOj5pxi0Mqs5oVYM3BrxxmS3P',
+  // clientSecret: 's5qxUm5vnQdUOqJ6'
 });
-myEpo.generate_token(function() {
-  // console.log(this.token);
-  // console.log(this.read_token());
-});
+// myEpo.generate_token(function() {
+//   // console.log(this.token);
+//   // console.log(this.read_token());
+// });
 myEpo.register({
   ref_type: "publication",
   format: "epodoc",
@@ -89,4 +179,13 @@ myEpo.register({
 },function(epo_data){
   console.log(JSON.parse(epo_data));
 });
+myEpo.register_search({
+  cql: "ti%3Dplastic",
+  range_begin: 1,
+  range_end: 30
+},function(epo_data){
+  console.log(epo_data);
+});
+
+
 // coonsole.log(myEpo.read_token);
