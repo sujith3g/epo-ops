@@ -1,7 +1,7 @@
 epo
 ----------
 
-[Espacenet](http://worldwide.espacenet.com/?locale=en_EP) Open Patent Service [API OPS v.3.1](https://developers.epo.org/?) wraper.
+[Espacenet](http://worldwide.espacenet.com/?locale=en_EP) Open Patent Service API [OPS v.3.1](https://developers.epo.org/?) wraper.
 
 ### Basic usage
 
@@ -34,7 +34,7 @@ epo
       range_end: 30
     }, function(epo_data) {
       console.log(epo_data);
-    });    
+    });
  });
 
 ```
