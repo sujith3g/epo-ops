@@ -1,0 +1,29 @@
+{
+  "name": "epo",
+  "version": "1.0.0",
+  "description": "Espacenet Open Patent Service API wraper.",
+  "main": "epo-ops.js",
+  "dependencies": {
+    "simple-oauth2": "^0.2.1",
+    "request": "^2.58.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sujith3g/epo-ops.git"
+  },
+  "keywords": [
+    "epo",
+    "espacenet",
+    "ops"
+  ],
+  "author": "Sujith G <sujith3g@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sujith3g/epo-ops/issues"
+  },
+  "homepage": "https://github.com/sujith3g/epo-ops#readme"
+}

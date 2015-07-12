@@ -204,34 +204,4 @@ Epo.prototype.register_search = function(options, callback) {
     });
   }
 };
-var myEpo = new Epo({
-  clientID: '3U0OeLMQOj5pxi0Mqs5oVYM3BrxxmS3P',
-  clientSecret: 's5qxUm5vnQdUOqJ6'
-});
-myEpo.generate_token(function() {
-  console.log(this.token);
-  myEpo.register_search({
-    cql: "ti%3Dplastic",
-    range_begin: 1,
-    range_end: 30
-  }, function(epo_data) {
-    console.log(epo_data);
-  });
-});
-// myEpo.register({
-//   ref_type: "publication",
-//   format: "epodoc",
-//   input: "EP1122334"
-// }, function(epo_data) {
-//   console.log(JSON.parse(epo_data));
-// });
-// myEpo.register_search({
-//   cql: "ti%3Dplastic",
-//   range_begin: 1,
-//   range_end: 30
-// }, function(epo_data) {
-//   console.log(epo_data);
-// });
-
-
-// coonsole.log(myEpo.read_token);
+module.exports = Epo;
