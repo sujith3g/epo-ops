@@ -3,6 +3,8 @@ epo
 
 [Espacenet](http://worldwide.espacenet.com/?locale=en_EP) Open Patent Service API [OPS v.3.1](https://developers.epo.org/?) wraper.
 
+[![Download count](https://img.shields.io/npm/dt/epo.svg?style=flat)](https://www.npmjs.org/package/epo)
+
 For detailed documentation [see here](https://github.com/sujith3g/epo-ops/blob/master/doc.md).
 
 ### Basic usage
