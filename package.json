@@ -1,6 +1,6 @@
 {
   "name": "epo",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "Espacenet Open Patent Service API wraper.",
   "main": "epo-ops.js",
   "dependencies": {
