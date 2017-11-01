@@ -6,18 +6,20 @@
  * @param {String} config.clientID is the clientID from the EPO-OPS for registered users.
  * @param {String} config.clientSecret is the clientSecret from the EPO-OPS for registered users.
  */
-var Epo = function(config) {
-  if (config) {
+const Epo = function (config) {
+  if (config && config.clientID && config.clientSecret) {
     this.oauth = {
       useBasicAuthorizationHeader: true,
-      site: 'https://ops.epo.org/3.1',
-      tokenPath: "/auth/accesstoken",
+      site: 'https://ops.epo.org/3.2',
+      tokenPath: '/auth/accesstoken',
     };
-    this.oauth.clientID = config.clientID || "";
-    this.oauth.clientSecret = config.clientSecret || "";
+    this.oauth.clientID = config.clientID;
+    this.oauth.clientSecret = config.clientSecret;
+  } else {
+    throw new Error('clientID and clientSecret is required for EPO-OPS v3.2');
   }
 };
-Epo.prototype.service_url_prefix = 'https://ops.epo.org/3.1/rest-services';
+Epo.prototype.service_url_prefix = 'https://ops.epo.org/3.2/rest-services';
 Epo.prototype.family_path = 'family';
 Epo.prototype.published_data_path = 'published-data';
 Epo.prototype.published_data_search_path = 'published-data/search';
@@ -28,29 +30,32 @@ Get the oauth-token from epo-ops if there is clientID & clientSecret provided, a
 This is optional, only for users registered with EPO-OPS and have a clientID & clientSecret.
 @param {Function} callback `callback` is called with `this` as EPO-OPS instance with oauth-token.
 */
-Epo.prototype.generate_token = function(callback) {
-  var _this = this;
+Epo.prototype.generate_token = function (callback) {
+  // eslint-disable-next-line no-underscore-dangle
+  const _this = this;
   if (this.oauth && this.oauth.clientID && this.oauth.clientSecret) {
-    var oauth2 = require('simple-oauth2')(this.oauth);
-    var params = {};
-    oauth2.client.getToken(params, function(error, result) {
+    const oauth2 = require('simple-oauth2')(this.oauth);
+    const params = {};
+    oauth2.client.getToken(params, (error, result) => {
       if (error) {
+        // eslint-disable-next-line no-console
         console.log('Access Token Error', error.message);
       } else if (result) {
         _this.token = oauth2.accessToken.create(result);
-        if (callback && typeof callback === "function") {
+        if (callback && typeof callback === 'function') {
           callback.call(_this);
         }
       }
     });
   } else {
-    coonsole.log("epo:Error : clientID OR clientSecret not-set");
+    // eslint-disable-next-line no-console
+    console.log('epo:Error : clientID OR clientSecret not-set');
   }
 };
 /**
 Returns the oauth-token if there is generated token available for the EPO-OPS instance.
 */
-Epo.prototype.read_token = function() {
+Epo.prototype.read_token = function () {
   return this.token;
 };
 /**
@@ -62,9 +67,9 @@ For retrieving data using EPO-OPS Register service
 @param {string} options.constituents can be any of the valid EPO-OPS register services `biblio`,`events`,`procedural-steps`.
 @param {Function} callback `callback` is invoked with first argument as `error` (if any), and second argument as the JSON Respose from EPO-OPS.
 */
-Epo.prototype.register = function(options, callback) {
+Epo.prototype.register = function (options, callback) {
   if (options && options.ref_type && options.format && options.input) {
-    options.constituents = options.constituents || "biblio";
+    options.constituents = options.constituents || 'biblio';
     var request = require('request');
     var urlBuilder = [this.service_url_prefix, this.register_path, options.ref_type, options.format, options.input, options.constituents];
     var reqOptions = {
@@ -79,16 +84,16 @@ Epo.prototype.register = function(options, callback) {
     if (this.token) {
       if (this.token.expired()) {
         _this = this;
-        this.token.refresh(function(error, result) {
+        this.token.refresh(function (error, result) {
           _this.token = result;
         });
       }
-      reqOptions["headers"]["Authorization"] = "Bearer " +this.token["token"]["access_token"];
+      reqOptions['headers']['Authorization'] = 'Bearer ' +this.token['token']['access_token'];
     }
     if (process.env.DEBUG) console.log('Request to register : ', reqOptions);
-    request(reqOptions, function(error, response, body) {
+    request(reqOptions, function (error, response, body) {
       if (response.statusCode === 200) {
-        if (callback && typeof callback === "function") {
+        if (callback && typeof callback === 'function') {
           callback.call(null, body);
         }
       }
@@ -104,33 +109,33 @@ For retrieving data using EPO-OPS published data service
 @param {String} options.constituents can be any of the valid EPO-OPS published data services `biblio`,`abstract`,`full-cycle`,etc.
 @param {Function} callback `callback` is invoked with first argument as `error` (if any), and second argument as the JSON Respose from EPO-OPS.
 */
-Epo.prototype.published_data = function(options, callback) {
+Epo.prototype.published_data = function (options, callback) {
   if (options && options.ref_type && options.format && options.input) {
     options.constituents = options.constituents || "biblio";
     var request = require('request');
     var urlBuilder = [this.service_url_prefix, this.published_data_path, options.ref_type, options.format, options.input, options.constituents];
     var reqOptions = {
-      url: urlBuilder.join("/"),
+      url: urlBuilder.join('/'),
       headers: {
         'Accept': 'application/json',
         'Connection': 'Keep-Alive',
         'Host': 'ops.epo.org',
-        'X-Target-URI': 'http://ops.epo.org'
-      }
+        'X-Target-URI': 'http://ops.epo.org',
+      },
     };
     if (this.token) {
       if (this.token.expired()) {
         _this = this;
-        this.token.refresh(function(error, result) {
+        this.token.refresh(function (error, result) {
           _this.token = result;
         });
       }
-      reqOptions["headers"]["Authorization"] = "Bearer " +this.token["token"]["access_token"];
+      reqOptions['headers']['Authorization'] = 'Bearer ' +this.token['token']['access_token'];
     }
     if (process.env.DEBUG) console.log('Request to register : ', reqOptions);
-    request(reqOptions, function(error, response, body) {
+    request(reqOptions, function (error, response, body) {
       if (response.statusCode === 200) {
-        if (callback && typeof callback === "function") {
+        if (callback && typeof callback === 'function') {
           callback.call(null, body);
         }
       }
@@ -146,31 +151,31 @@ For retrieving data using EPO-OPS family service
 @param {String} options.constituents can be any of the valid EPO-OPS Family services `biblio`,`legal`.
 @param {Function} callback `callback` is invoked with first argument as `error` (if any), and second argument as the JSON Respose from EPO-OPS.
 */
-Epo.prototype.family = function(options, callback) {
+Epo.prototype.family = function (options, callback) {
   if (options && options.ref_type && options.format && options.input) {
     options.constituents = options.constituents || "";
     var request = require('request');
     var urlBuilder = [this.service_url_prefix, this.family_path, options.ref_type, options.format, options.input, options.constituents];
     var reqOptions = {
-      url: urlBuilder.join("/"),
+      url: urlBuilder.join('/'),
       headers: {
         'Accept': 'application/json',
         'Connection': 'Keep-Alive',
         'Host': 'ops.epo.org',
-        'X-Target-URI': 'http://ops.epo.org'
-      }
+        'X-Target-URI': 'http://ops.epo.org',
+      },
     };
     if (this.token) {
       if (this.token.expired()) {
         _this = this;
-        this.token.refresh(function(error, result) {
+        this.token.refresh(function (error, result) {
           _this.token = result;
         });
       }
-      reqOptions["headers"]["Authorization"] = "Bearer " +this.token["token"]["access_token"];
+      reqOptions['headers']['Authorization'] = 'Bearer ' +this.token['token']['access_token'];
     }
     if (process.env.DEBUG) console.log('Request to register : ', reqOptions);
-    request(reqOptions, function(error, response, body) {
+    request(reqOptions, function (error, response, body) {
       if (response.statusCode === 200) {
         if (callback && typeof callback === "function") {
           callback.call(null, body);
@@ -187,34 +192,34 @@ For retrieving data using CQL query and EPO-OPS published data search service
 @param {String} options.range_end end/max value of Range of results to be retrieved.
 @param {Function} callback `callback` is invoked with first argument as `error` (if any), and second argument as the JSON Respose from EPO-OPS.
 */
-Epo.prototype.published_data_search = function(options, callback) {
+Epo.prototype.published_data_search = function (options, callback) {
   if (options && options.cql) {
     options.range_begin = options.range_begin || 1;
     options.range_end = options.range_end || 25;
     var request = require('request');
-    var urlBuilder = this.service_url_prefix + "/" + this.published_data_search_path + "?q=" + options.cql + "&Range=" + options.range_begin + "-" + options.range_end;
+    var urlBuilder = this.service_url_prefix + '/' + this.published_data_search_path + '?q=' + options.cql + '&Range=' + options.range_begin + '-' + options.range_end;
     var reqOptions = {
       url: urlBuilder,
       headers: {
         'Accept': 'application/json',
         'Connection': 'Keep-Alive',
         'Host': 'ops.epo.org',
-        'X-Target-URI': 'http://ops.epo.org'
-      }
+        'X-Target-URI': 'http://ops.epo.org',
+      },
     };
     if (this.token) {
       if (this.token.expired()) {
         _this = this;
-        this.token.refresh(function(error, result) {
+        this.token.refresh(function (error, result) {
           _this.token = result;
         });
       }
-      reqOptions["headers"]["Authorization"] = "Bearer " +this.token["token"]["access_token"];
+      reqOptions['headers']['Authorization'] = 'Bearer ' +this.token['token']['access_token'];
     }
     if (process.env.DEBUG) console.log('Request to register : ', reqOptions);
-    request(reqOptions, function(error, response, body) {
+    request(reqOptions, function (error, response, body) {
       if (response.statusCode === 200) {
-        if (callback && typeof callback === "function") {
+        if (callback && typeof callback === 'function') {
           callback.call(null, body);
         }
       }
@@ -230,34 +235,34 @@ For retrieving data using CQL query and EPO-OPS register search service
 @param {Function} callback `callback` is invoked with first argument as `error` (if any), and second argument as the JSON Respose from EPO-OPS.
 */
 
-Epo.prototype.register_search = function(options, callback) {
+Epo.prototype.register_search = function (options, callback) {
   if (options && options.cql) {
     options.range_begin = options.range_begin || 1;
     options.range_end = options.range_end || 25;
     var request = require('request');
-    var urlBuilder = this.service_url_prefix + "/" + this.register_search_path + "?q=" + options.cql + "&Range=" + options.range_begin + "-" + options.range_end;
+    var urlBuilder = this.service_url_prefix + '/' + this.register_search_path + '?q=' + options.cql + '&Range=' + options.range_begin + '-' + options.range_end;
     var reqOptions = {
       url: urlBuilder,
       headers: {
         'Accept': 'application/json',
         'Connection': 'Keep-Alive',
         'Host': 'ops.epo.org',
-        'X-Target-URI': 'http://ops.epo.org'
-      }
+        'X-Target-URI': 'http://ops.epo.org',
+      },
     };
     if (this.token) {
       if (this.token.expired()) {
         _this = this;
-        this.token.refresh(function(error, result) {
+        this.token.refresh(function (error, result) {
           _this.token = result;
         });
       }
-      reqOptions["headers"]["Authorization"] = "Bearer " +this.token["token"]["access_token"];
+      reqOptions['headers']['Authorization'] = 'Bearer ' +this.token['token']['access_token'];
     }
     if (process.env.DEBUG) console.log('Request to register : ', reqOptions);
-    request(reqOptions, function(error, response, body) {
+    request(reqOptions, function (error, response, body) {
       if (response.statusCode === 200) {
-        if (callback && typeof callback === "function") {
+        if (callback && typeof callback === 'function') {
           callback.call(null, body);
         }
       }
